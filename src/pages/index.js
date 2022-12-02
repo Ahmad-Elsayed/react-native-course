@@ -1,39 +1,36 @@
 import * as React from "react"
-import { graphql, Link } from "gatsby"
-
 import Layout from "../components/layout"
 import Seo from "../components/seo"
-import {
-  Container,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Paper,
-} from "@mui/material"
+import { Container, Typography } from "@mui/material"
+import { graphql } from "gatsby"
+import { documentToReactComponents } from "@contentful/rich-text-react-renderer"
+import { BLOCKS } from "@contentful/rich-text-types"
+import colors from "../constants/colors"
 
-const IndexPage = ({ data: { allContentfulLessons } }) => {
+const IndexPage = ({ data: { allContentfulIntro } }) => {
   return (
     <Layout>
-      <Container>
-        <Paper variant={"outlined"}>
-          <List>
-            {allContentfulLessons?.edges?.map(({ node: { title, slug } }) => (
-              <Link
-                to={`/lessons/${slug}`}
-                style={{
-                  textDecoration: `none`,
-                }}
-              >
-                <ListItem key={"slug"}>
-                  <ListItemButton>
-                    <ListItemText primary={title} />
-                  </ListItemButton>
-                </ListItem>
-              </Link>
-            ))}
-          </List>
-        </Paper>
+      <Container
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          textAlign: "center",
+        }}
+      >
+        {allContentfulIntro.edges.map(({ node }) =>
+          documentToReactComponents(JSON.parse(node.body.raw), {
+            renderNode: {
+              [BLOCKS.PARAGRAPH]: (node, content) => (
+                <Typography
+                  variant={"overline"}
+                  sx={{ color: colors.darkGray }}
+                >
+                  {content}
+                </Typography>
+              ),
+            },
+          })
+        )}
       </Container>
     </Layout>
   )
@@ -50,11 +47,12 @@ export default IndexPage
 
 export const query = graphql`
   {
-    allContentfulLessons {
+    allContentfulIntro {
       edges {
         node {
-          title
-          slug
+          body {
+            raw
+          }
         }
       }
     }
